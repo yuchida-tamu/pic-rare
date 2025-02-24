@@ -7,6 +7,7 @@
 
 import GameplayKit
 import PhotosUI
+import SwiftData
 import SwiftUI
 
 struct PhotoItem: Identifiable, Hashable {
@@ -38,6 +39,8 @@ struct PhotoGalleryView: View {
     @State var loadedImages: [PhotoItem] = []
     @State var offset: CGSize = CGSize.zero
 
+    @Query var settings: [UserSettings]
+
     private let date = Date()
 
     var rotation: Double {
@@ -46,24 +49,43 @@ struct PhotoGalleryView: View {
         return capped / 50.0
     }
 
+    var galleryMode: Int {
+        if let userSetting = settings.first {
+            return userSetting.galleryViewMode
+        }
+        return 3
+    }
+
+    var borderColor: Color {
+        if let userSetting = settings.first {
+            return userSetting.borderColor.color
+        }
+        return .white
+    }
+
     var body: some View {
         NavigationStack {
             VStack {
                 if selectedImages.isEmpty {
-                    PhotosPicker(selection: $selectedImages, matching: .images) {
+                    PhotosPicker(selection: $selectedImages, matching: .images)
+                    {
                         Image(systemName: "photo.badge.plus.fill")
                         Text("Add Images")
                     }
                 } else {
                     PhotoGalleryHeaderView(selectedImages: $selectedImages)
-                    ScrollGridView(items: loadedImages) { item in
+                    ScrollGridView(
+                        items: loadedImages, columnCount: galleryMode
+                    ) { item in
                         NavigationLink(value: item) {
                             ImageCard(image: item.image)
                                 .small()
+                                .borderColor(borderColor)
                                 .horographic(
                                     offset: offset,
                                     voronoi: photoGalleryViewModel
-                                        .horographicImage
+                                        .horographicImage,
+                                    saturation: 1.3
                                 )
                                 .shadow(
                                     radius: 4.0
@@ -71,7 +93,7 @@ struct PhotoGalleryView: View {
                         }
                     }
                 }
-               
+
             }
             .navigationDestination(for: PhotoItem.self) {
                 photoItem in

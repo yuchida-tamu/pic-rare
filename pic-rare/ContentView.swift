@@ -5,24 +5,24 @@
 //  Created by Yuta Uchida on 2025/02/24.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     var photoGalleryViewModel = PhotoDetailViewModel()
-    
+
     var body: some View {
-        TabView{
+        TabView {
             PhotoGalleryView()
                 .environmentObject(photoGalleryViewModel)
-                .tabItem{
+                .tabItem {
                     Image(systemName: "square.grid.2x2")
                     Text("gallery")
                 }
-            
-            SettingsView()
-                .tabItem{
+
+            SettingsView(context: modelContext)
+                .tabItem {
                     Image(systemName: "gearshape")
                     Text("settings")
                 }
@@ -33,5 +33,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: UserSettings.self, inMemory: true)
 }

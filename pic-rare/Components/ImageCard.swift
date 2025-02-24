@@ -10,6 +10,7 @@ import SwiftUI
 struct ImageCard: View {
     var image: UIImage? = nil
     var padding = 16.0
+    var borderColor = Color.white
 
     var body: some View {
         VStack {
@@ -20,7 +21,7 @@ struct ImageCard: View {
                     .clipShape(
                         RoundedRectangle(cornerRadius: 8.0)
                     )
-                   
+
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8.0)
@@ -33,7 +34,7 @@ struct ImageCard: View {
 
         }
         .padding(padding)
-        .background(.white)
+        .background(borderColor)
         .clipShape(RoundedRectangle(cornerRadius: 8.0))
     }
 
@@ -43,9 +44,15 @@ struct ImageCard: View {
 }
 
 extension ImageCard {
-    func small() -> some View {
+    func small() -> ImageCard {
         var updated = self
         updated.padding = 4
+        return updated
+    }
+
+    func borderColor(_ color: Color) -> ImageCard {
+        var updated = self
+        updated.borderColor = color
         return updated
     }
 }
@@ -57,8 +64,12 @@ extension View {
 }
 
 extension View {
-    func horographic(offset: CGSize, voronoi: Image) -> some View {
-        modifier(HorographicViewModifier(offset: offset, voronoi: voronoi))
+    func horographic(offset: CGSize, voronoi: Image, saturation: Double)
+        -> some View
+    {
+        modifier(
+            HorographicViewModifier(
+                offset: offset, voronoi: voronoi, saturation: saturation))
     }
 }
 

@@ -33,8 +33,8 @@ struct ScrollGridView<Content: View, T: Identifiable>: View {
         self.items = items
         self.content = content
     }
-    
-    init(items: [T], columnCount: Int ,content: @escaping (T) -> Content) {
+
+    init(items: [T], columnCount: Int, content: @escaping (T) -> Content) {
         self.items = items
         self.columnCount = columnCount
         self.content = content
