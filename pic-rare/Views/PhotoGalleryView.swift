@@ -36,7 +36,7 @@ struct PhotoGalleryView: View {
     @Namespace var namespace
     @EnvironmentObject var photoGalleryViewModel: PhotoDetailViewModel
     @State var selectedImages: [PhotosPickerItem] = []
-    @State var loadedImages: [PhotoItem] = []
+    @State var cachedSelectedImages: [PhotosPickerItem] = []
     @State var offset: CGSize = CGSize.zero
 
     @Query var settings: [UserSettings]
@@ -66,7 +66,7 @@ struct PhotoGalleryView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                if selectedImages.isEmpty {
+                if photoGalleryViewModel.photoItems.isEmpty {
                     PhotosPicker(selection: $selectedImages, matching: .images)
                     {
                         Image(systemName: "photo.badge.plus.fill")
@@ -75,7 +75,7 @@ struct PhotoGalleryView: View {
                 } else {
                     PhotoGalleryHeaderView(selectedImages: $selectedImages)
                     ScrollGridView(
-                        items: loadedImages, columnCount: galleryMode
+                        items: photoGalleryViewModel.photoItems, columnCount: galleryMode
                     ) { item in
                         NavigationLink(value: item) {
                             ImageCard(image: item.image)
@@ -100,30 +100,53 @@ struct PhotoGalleryView: View {
                 PhotoDetailView(photoItem: photoItem)
             }
             .onChange(of: selectedImages, initial: false) {
-                loadImages(selectedImages)
+                selectAndSaveImages(selectedImages)
             }
+        }
+        .onAppear{
+            photoGalleryViewModel.loadImages()
         }
 
     }  //: body
 
-    func loadImages(_ pickerItems: [PhotosPickerItem]) {
+    func selectAndSaveImages(_ pickerItems: [PhotosPickerItem]) {
         Task {
-            loadedImages = []
-
+            var data2Save: [Data] = []
+            var photoItemToSave: [UIImage] = []
             for image in pickerItems {
+
+                if cachedSelectedImages.contains(where: { $0 == image }) {
+                    continue
+                }
+
                 guard
                     let data = try await image.loadTransferable(
                         type: Data.self)
-                else { return }
-                guard let uiImage = UIImage(data: data) else { return }
-                loadedImages.append(PhotoItem(image: uiImage))
-            }
+                else { continue }
+                guard let uiImage = UIImage(data: data) else { continue }
 
+                data2Save.append(data)
+                photoItemToSave.append(uiImage)
+
+            }
+            cachedSelectedImages = selectedImages
+            photoGalleryViewModel.saveImages(images: data2Save)
+            photoGalleryViewModel.savePhotoItem(items: photoItemToSave)
         }
     }
 }
 
 #Preview {
-    PhotoGalleryView()
-        .environmentObject(PhotoDetailViewModel())
+    struct PreviewComponent: View {
+        @Environment(\.modelContext) private var modelContext
+
+        var body: some View {
+            PhotoGalleryView()
+                .environmentObject(PhotoDetailViewModel(context: modelContext))
+        }
+    }
+    return PreviewComponent()
+        .modelContainer(
+            for: [UserSettings.self, ImageData.self], inMemory: true)
+
 }

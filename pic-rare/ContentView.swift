@@ -10,12 +10,11 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    var photoGalleryViewModel = PhotoDetailViewModel()
 
     var body: some View {
         TabView {
             PhotoGalleryView()
-                .environmentObject(photoGalleryViewModel)
+                .environmentObject(PhotoDetailViewModel(context: modelContext))
                 .tabItem {
                     Image(systemName: "square.grid.2x2")
                     Text("gallery")
@@ -33,5 +32,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: UserSettings.self, inMemory: true)
+        .modelContainer(for: [UserSettings.self, ImageData.self], inMemory: true)
 }

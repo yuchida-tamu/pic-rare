@@ -12,7 +12,8 @@ import SwiftUI
 struct pic_rareApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            UserSettings.self
+            UserSettings.self,
+            ImageData.self
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema, isStoredInMemoryOnly: false)
