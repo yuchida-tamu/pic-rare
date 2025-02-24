@@ -95,6 +95,7 @@ struct PhotoGalleryView: View {
                 }
 
             }
+            .padding(.vertical, 16)
             .navigationDestination(for: PhotoItem.self) {
                 photoItem in
                 PhotoDetailView(photoItem: photoItem)
@@ -102,9 +103,9 @@ struct PhotoGalleryView: View {
             .onChange(of: selectedImages, initial: false) {
                 selectAndSaveImages(selectedImages)
             }
-        }
-        .onAppear{
-            photoGalleryViewModel.loadImages()
+            .onAppear{
+                photoGalleryViewModel.loadImages()
+            }
         }
 
     }  //: body
