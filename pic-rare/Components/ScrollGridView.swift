@@ -9,15 +9,17 @@ import SwiftUI
 
 struct ScrollGridView<Content: View, T: Identifiable>: View {
     var items: [T]
+    var columnCount = 3
     var content: (T) -> Content
-    
+
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(spacing: 8), count: columnCount)
+    }
+
     var body: some View {
         ScrollView {
             LazyVGrid(
-                columns: [
-                    GridItem(spacing: 8), GridItem(spacing: 8),
-                    GridItem(spacing: 8),
-                ],
+                columns: columns,
                 spacing: 8
             ) {
                 ForEach(items, id: \.id) { item in
@@ -26,9 +28,15 @@ struct ScrollGridView<Content: View, T: Identifiable>: View {
             }
         }
     }
-    
+
     init(items: [T], content: @escaping (T) -> Content) {
         self.items = items
+        self.content = content
+    }
+    
+    init(items: [T], columnCount: Int ,content: @escaping (T) -> Content) {
+        self.items = items
+        self.columnCount = columnCount
         self.content = content
     }
 }
