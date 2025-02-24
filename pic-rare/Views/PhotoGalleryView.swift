@@ -49,21 +49,29 @@ struct PhotoGalleryView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                PhotoGalleryHeaderView(selectedImages: $selectedImages)
-                ScrollGridView(items: loadedImages) { item in
-                    NavigationLink(value: item) {
-                        ImageCard(image: item.image)
-                            .small()
-                            .horographic(
-                                offset: offset,
-                                voronoi: photoGalleryViewModel
-                                    .horographicImage
-                            )
-                            .shadow(
-                                radius: 4.0
-                            )
+                if selectedImages.isEmpty {
+                    PhotosPicker(selection: $selectedImages, matching: .images) {
+                        Image(systemName: "photo.badge.plus.fill")
+                        Text("Add Images")
+                    }
+                } else {
+                    PhotoGalleryHeaderView(selectedImages: $selectedImages)
+                    ScrollGridView(items: loadedImages) { item in
+                        NavigationLink(value: item) {
+                            ImageCard(image: item.image)
+                                .small()
+                                .horographic(
+                                    offset: offset,
+                                    voronoi: photoGalleryViewModel
+                                        .horographicImage
+                                )
+                                .shadow(
+                                    radius: 4.0
+                                )
+                        }
                     }
                 }
+               
             }
             .navigationDestination(for: PhotoItem.self) {
                 photoItem in
